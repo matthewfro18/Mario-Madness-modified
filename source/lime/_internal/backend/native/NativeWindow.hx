@@ -68,10 +68,14 @@ class NativeWindow
         var width = Reflect.hasField(attributes, "width") ? attributes.width : #if desktop 800 #else 0 #end;
 		var height = Reflect.hasField(attributes, "height") ? attributes.height : #if desktop 600 #else 0 #end;
 
-        if (Main.initialState == TitleState) {
-            width = Main.gameWidth; height = Main.gameHeight;
-            attributes.resizable = false;
-        }
+		#if !macro
+		if (Main.initialState == TitleState)
+		{
+			width = Main.gameWidth;
+			height = Main.gameHeight;
+			attributes.resizable = false;
+		}
+		#end
 
 		if (!Reflect.hasField(contextAttributes, "antialiasing")) contextAttributes.antialiasing = 0;
 		if (!Reflect.hasField(contextAttributes, "background")) contextAttributes.background = 0;

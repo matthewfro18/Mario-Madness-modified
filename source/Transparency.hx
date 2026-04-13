@@ -21,24 +21,19 @@ class Transparency{
 	static var winExStyle:LONG;
 
 	@:native("FindWindowA") @:extern
-	static function findWindow(className:cpp.ConstCharStar, windowName:cpp.ConstCharStar):HWND
-		return null;
+	static function findWindow(className:cpp.ConstCharStar, windowName:cpp.ConstCharStar):HWND;
 
 	@:native("SetWindowLongA") @:extern
-	static function setWindowLong(hWnd:HWND, nIndex:Int, dwNewLong:LONG):LONG
-		return null;
+	static function setWindowLong(hWnd:HWND, nIndex:Int, dwNewLong:LONG):LONG;
 
 	@:native("GetWindowLongA") @:extern
-	static function getWindowLong(hWnd:HWND, nIndex:Int):LONG
-		return null;
+	static function getWindowLong(hWnd:HWND, nIndex:Int):LONG;
 
 	@:native("SetLayeredWindowAttributes") @:extern
-	static function setLayeredWindowAttributes(hwnd:HWND, crKey:COLORREF, bAlpha:BYTE, dwFlags:DWORD):BOOL
-		return null;
+	static function setLayeredWindowAttributes(hwnd:HWND, crKey:COLORREF, bAlpha:BYTE, dwFlags:DWORD):BOOL;
 
 	@:native("GetLastError") @:extern
-	static function getLastError():DWORD
-		return null;
+	static function getLastError():DWORD;
 
 	public static function setTransparency(winName:String, color:Int):Void
 	{

@@ -526,9 +526,9 @@ class System
 
 	@:noCompletion private static function __registerEntryPoint(projectName:String, entryPoint:Function):Void
 	{
-        #if windows
-        CppAPI.allowHighDPI();
-        #end
+		#if (cpp && windows)
+		CppAPI.allowHighDPI();
+		#end
 		
 		if (__applicationEntryPoint == null)
 		{

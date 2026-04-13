@@ -12,8 +12,6 @@ import lime.system.Clipboard;
 import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.JNI;
-import lime.system.Sensor;
-import lime.system.SensorType;
 import lime.system.System;
 import lime.ui.Gamepad;
 import lime.ui.Joystick;
@@ -22,6 +20,11 @@ import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Touch;
 import lime.ui.Window;
+	
+#if (ios || android || tvos)
+import lime.system.Sensor;
+import lime.system.SensorType;
+#end
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -63,7 +66,7 @@ class NativeApplication
 	private var parent:Application;
 	private var toggleFullscreen:Bool;
 
-    public static var fullscreenable:Bool = Main.initialState != TitleState;
+	public static var fullscreenable:Bool = #if !macro Main.initialState != TitleState #else true #end;
 
 	private static function __init__()
 	{
@@ -413,6 +416,7 @@ class NativeApplication
 		}
 	}
 
+	#if (ios || android || tvos)
 	private function handleSensorEvent():Void
 	{
 		var sensor = Sensor.sensorByID.get(sensorEventInfo.id);
@@ -422,6 +426,7 @@ class NativeApplication
 			sensor.onUpdate.dispatch(sensorEventInfo.x, sensorEventInfo.y, sensorEventInfo.z);
 		}
 	}
+	#end
 
 	private function handleTextEvent():Void
 	{

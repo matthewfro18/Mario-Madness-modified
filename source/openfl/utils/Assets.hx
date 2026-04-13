@@ -2,12 +2,10 @@ package openfl.utils;
 
 import openfl.display.BitmapData;
 import openfl.display.MovieClip;
-import openfl.display.OptimizedBitmapData;
 import openfl.display.Sprite;
 import openfl.events.Event;
 import openfl.events.EventDispatcher;
 import openfl.media.Sound;
-import openfl.text.Font;
 import openfl.utils._internal.Log;
 #if lime
 import lime.app.Promise;
@@ -43,6 +41,7 @@ import lime.media.vorbis.VorbisFile;
 @:access(openfl.display.Sprite)
 @:access(openfl.text.Font)
 @:access(openfl.utils.AssetLibrary)
+private typedef AssetFont = #if !macro openfl.text.Font #else Dynamic #end;
 class Assets
 {
 	public static var cache:IAssetCache = new AssetCache();
@@ -91,7 +90,7 @@ class Assets
 	**/
 	public static function getBitmapData(id:String, useCache:Bool = true):BitmapData
 	{
-		#if (lime && tools && !display)
+		#if (lime && tools && !display && !macro)
 		if (useCache && cache.enabled && cache.hasBitmapData(id))
 		{
 			var bitmapData = cache.getBitmapData(id);
@@ -109,7 +108,7 @@ class Assets
 			#if flash
 			var bitmapData = image.src;
 			#else
-			var bitmapData = (!Main.forceNoVramSprites && ClientPrefs.vramSprites) ? OptimizedBitmapData.fromImage(image) : BitmapData.fromImage(image);
+			var bitmapData = (!Main.forceNoVramSprites && ClientPrefs.vramSprites) ? openfl.display.OptimizedBitmapData.fromImage(image) : BitmapData.fromImage(image);
 			#end
 
 			if (useCache && cache.enabled)
@@ -146,7 +145,7 @@ class Assets
 		@param	useCache		(Optional) Whether to allow use of the asset cache (Default: true)
 		@return		A new Font object
 	**/
-	public static function getFont(id:String, useCache:Bool = true):Font
+	public static function getFont(id:String, useCache:Bool = true):AssetFont
 	{
 		#if (lime && tools && !display && !macro)
 		if (useCache && cache.enabled && cache.hasFont(id))
@@ -161,8 +160,8 @@ class Assets
 			#if flash
 			var font = limeFont.src;
 			#else
-			var font = new Font();
-			font.__fromLimeFont(limeFont);
+			var font = new openfl.text.Font();
+			@:privateAccess font.__fromLimeFont(limeFont);
 			#end
 
 			if (useCache && cache.enabled)
@@ -174,7 +173,11 @@ class Assets
 		}
 		#end
 
-		return new Font();
+		#if !macro
+		return new openfl.text.Font();
+		#else
+		return null;
+		#end
 	}
 
 	public static function getLibrary(name:String):#if lime LimeAssetLibrary #else AssetLibrary #end
@@ -348,15 +351,15 @@ class Assets
 			#if !flash
 			if (instance == null)
 			{
-				Sprite.__constructor = function(instance:Sprite)
+				@:privateAccess Sprite.__constructor = function(instance:Sprite)
 				{
-					instance.__bind(library, className);
+					@:privateAccess instance.__bind(library, className);
 				}
 			}
 			else
 			{
-				Sprite.__constructor = null;
-				instance.__bind(library, className);
+				@:privateAccess Sprite.__constructor = null;
+				@:privateAccess instance.__bind(library, className);
 			}
 			#else
 			// TODO: Consolidate behavior
@@ -538,12 +541,12 @@ class Assets
 		@param	useCache		(Optional) Whether to allow use of the asset cache (Default: true)
 		@return		Returns a Future<Font>
 	**/
-	public static function loadFont(id:String, useCache:Null<Bool> = true):Future<Font>
+	public static function loadFont(id:String, useCache:Null<Bool> = true):Future<AssetFont>
 	{
 		if (useCache == null) useCache = true;
 
 		#if (lime && tools && !display && !macro)
-		var promise = new Promise<Font>();
+		var promise = new Promise<AssetFont>();
 
 		if (useCache && cache.enabled && cache.hasFont(id))
 		{
@@ -557,8 +560,8 @@ class Assets
 				#if flash
 				var font = limeFont.src;
 				#else
-				var font = new Font();
-				font.__fromLimeFont(limeFont);
+				var font = new openfl.text.Font();
+				@:privateAccess font.__fromLimeFont(limeFont);
 				#end
 
 				if (useCache && cache.enabled)
@@ -602,7 +605,7 @@ class Assets
 					// since that is a new public API
 					@:privateAccess LimeAssets.libraries.remove(name);
 					_library = new AssetLibrary();
-					_library.__proxy = library;
+					@:privateAccess _library.__proxy = library;
 					LimeAssets.registerLibrary(name, _library);
 				}
 			}
